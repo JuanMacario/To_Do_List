@@ -1,99 +1,96 @@
-const data = [
+let data = [
     { id: 1, texto: "Among us", estado: true },
-    { id: 2, texto: "Among us 2", estado: true }
+    { id: 2, texto: "Among us 2", estado: false }
 ]
 
+let crearID = data.length
+
 let valorInput = document.querySelector("#inputTarea")
-let boton = document.querySelector("#btnTarea")
+let botonAgregar = document.querySelector("#btnTarea")
 let tareas = document.querySelector("#tareas")
 
+const dibujarElementos = (info = null, i = null) => {
+    //Dibujando div
+    let div = document.createElement('div')
+    div.className = "cajaTarea"
+    //Dobujando checkbox
+    let checkbox = document.createElement('input')
+    checkbox.setAttribute('type', 'checkbox')
+    checkbox.setAttribute('id', info[i].id)
+    checkbox.classList = "checkbox me-2"
 
-if (data.length > 0) {
-    for (let i = 0; data.length - 1; i++) {
-        //Dibujando div
-        let div = document.createElement('div')
-        div.className = "cajaTarea"
-        //d-flex w-100 justify-content-between align-items-center
-        //dibujando Creckbox
+    //Dibujando el lablel
+    let label = document.createElement('label')
 
-        let checkbox = document.createElement('input')
-        checkbox.setAttribute('type', 'checkbox')
-        checkbox.setAttribute('id', data[i].id)
-        checkbox.classList = "me-2"
-        //Dibujando el lablel
-        let lebel = document.createElement('label')
-        //Pendiente algo ... insertar el texto a label
-
-        checkbox.addEventListener('click', (event) => {
-            console.log(event.target.id)
-            console.log(data)
-            let tareaABuscar = data.find(item => item.id == event.target.id)
-            tareaABuscar.estado = !tareaABuscar.estado
-            lebel.classList.toggle('text-decoration-line-through')
-            lebel.classList.toggle("text-secondary")
-        })
-
-        //Dibujar el sub
-        let sub = document.createElement('button')
-        sub.classList = "btn boton btn-danger"
-        sub.textContent = 'X'
-
-        sub.addEventListener('click', (event) => {
-            div.remove()
-        })
-
-        if (data[i].estado) {
-            checkbox.checked = true
-            lebel.classList.toggle('text-decoration-line-through')
-            lebel.classList.toggle("text-secondary")
-        }
+    let sub = document.createElement('button')
+    sub.classList = "btn botonEliminar btn-danger"
+    sub.textContent = 'X'
 
 
-        lebel.textContent = data[i].texto
-        div.append(checkbox)
-        div.append(lebel)
-        div.append(sub)
-        valorInput.value = ''
-        tareas.append(div)
+    if (info == null || i == null) {
+        checkbox.setAttribute('id', data.length + 1)
+        sub.setAttribute('id', data.length+1)
+        label.textContent = valorInput.value
+    } else {
+        checkbox.setAttribute('id', info[i].id)
+        label.textContent = info[i].texto
+        sub.setAttribute('id', info[i].id)
     }
-    console.log(data)
+    div.append(checkbox)
+    div.append(label)
+    div.append(sub)
+
+    return { div, checkbox, label, sub }
+}
+
+const dibujarTodo = () => {
+    if (data.length > 0) {
+        for (let i = 0; i <= data.length - 1; i++) {
+
+            const { div, checkbox, label, sub } = dibujarElementos(data, i)
+
+            if (data[i].estado) {
+                checkbox.checked = true
+                label.classList.add('text-decoration-line-through')
+                // label.classList.add("text-secondary")
+            } else {
+                checkbox.checked = false
+                label.classList.remove('text-decoration-line-through')
+                // label.classList.remove("text-secondary")
+            }
+
+            tareas.append(div)
+        }
+    }
 }
 
 //Agregar elementos al Div
 
-boton.addEventListener('click', (event) => {
-    //Dibujando div
-    let div = document.createElement('div')
-    div.className = "cajaTarea"
-    //d-flex w-100 justify-content-between align-items-center
-    //dibujando Creckbox
+botonAgregar.addEventListener('click', () => {
 
-    let checkbox = document.createElement('input')
-    checkbox.setAttribute('type', 'checkbox')
-    checkbox.classList = "me-2"
-    //Dibujando el lablel
-    let lebel = document.createElement('label')
-    //Pendiente algo ... insertar el texto a label
-
-    checkbox.addEventListener('click', (event) => {
-        lebel.classList.toggle('text-decoration-line-through')
-        lebel.classList.toggle("text-secondary")
-    })
-
-    //Dibujar el sub
-    let sub = document.createElement('button')
-    sub.classList = "btn boton btn-danger"
-    sub.textContent = 'X'
-
-    sub.addEventListener('click', (event) => {
-        div.remove()
-    })
-
-    lebel.textContent = valorInput.value
-    div.append(checkbox)
-    div.append(lebel)
-    div.append(sub)
+    data.push(
+        { id: data.length + 1, texto: valorInput.value, estado: false }
+    )
+    tareas.innerHTML = ''
+    dibujarTodo();
     valorInput.value = ''
-    tareas.append(div)
 })
 
+tareas.addEventListener('click', (event) => {
+    if (event.target.classList.contains('checkbox')) {
+        let tareaBuscar = data.find(item => item.id == event.target.id)
+        tareaBuscar.estado = !tareaBuscar.estado
+
+        if (tareaBuscar.estado) {
+            event.target.nextSibling.classList.add('text-decoration-line-through')
+        } else {
+            event.target.nextSibling.classList.remove('text-decoration-line-through')
+        }
+    } else if (event.target.classList.contains('botonEliminar')) {
+        event.target.parentElement.remove()
+        console.log(event)
+        data = data.filter(item => item.id != event.target.id)
+    }
+})
+
+dibujarTodo()
