@@ -1,13 +1,20 @@
-let data = [
-    { id: 1, texto: "Among us", estado: true },
-    { id: 2, texto: "Among us 2", estado: false }
-]
+let data = []
 
-let crearID = data.length
+if (JSON.parse(localStorage.getItem('data')).length > 0) {
+    data = JSON.parse(localStorage.getItem('data'))
+} else {
+    localStorage.setItem('data', JSON.stringify([])) // Permite enviar la informacion
+}
 
 let valorInput = document.querySelector("#inputTarea")
 let botonAgregar = document.querySelector("#btnTarea")
 let tareas = document.querySelector("#tareas")
+
+//localStorage.getItem([]) //Permite traer la informacion
+
+const getNextId = () => {
+    return data.length > 0 ? data[data.length - 1].id + 1 : 1
+}
 
 const dibujarElementos = (info = null, i = null) => {
     //Dibujando div
@@ -26,10 +33,9 @@ const dibujarElementos = (info = null, i = null) => {
     sub.classList = "btn botonEliminar btn-danger"
     sub.textContent = 'X'
 
-
     if (info == null || i == null) {
-        checkbox.setAttribute('id', data.length + 1)
-        sub.setAttribute('id', data.length+1)
+        checkbox.setAttribute('id', getNextId())
+        sub.setAttribute('id', getNextId())
         label.textContent = valorInput.value
     } else {
         checkbox.setAttribute('id', info[i].id)
@@ -58,7 +64,6 @@ const dibujarTodo = () => {
                 label.classList.remove('text-decoration-line-through')
                 // label.classList.remove("text-secondary")
             }
-
             tareas.append(div)
         }
     }
@@ -69,8 +74,9 @@ const dibujarTodo = () => {
 botonAgregar.addEventListener('click', () => {
 
     data.push(
-        { id: data.length + 1, texto: valorInput.value, estado: false }
+        { id: getNextId(), texto: valorInput.value, estado: false }
     )
+    localStorage.setItem('data', JSON.stringify(data))
     tareas.innerHTML = ''
     dibujarTodo();
     valorInput.value = ''
@@ -88,9 +94,9 @@ tareas.addEventListener('click', (event) => {
         }
     } else if (event.target.classList.contains('botonEliminar')) {
         event.target.parentElement.remove()
-        console.log(event)
         data = data.filter(item => item.id != event.target.id)
     }
+    localStorage.setItem('data', JSON.stringify(data))
 })
 
 dibujarTodo()
